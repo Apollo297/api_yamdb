@@ -67,3 +67,7 @@ class GetTokenViewSet(
             return Response({'token': str(token)}, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+# class UserViewSet(viewsets.ModelViewSet):
+    # pass
