@@ -1,30 +1,24 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+
 from users.models import User
 
 
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        validators=[
-            UniqueValidator(
-                queryset=User.objects.all()
-            )
-        ],
+        max_length=254,
         required=True,
     )
-    username = serializers.CharField(
-        validators=[
-            UniqueValidator(
-                queryset=User.objects.all()
-            )
-        ],
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]+\Z',
+        max_length=150,
         required=True,
     )
 
     def validate_username(self, value):
         if value.lower() == 'me':
             raise serializers.ValidationError(
-                'Недопустимое имя пользователя'
+                'Недопустимое имя пользователя.'
             )
         return value
 
@@ -37,7 +31,9 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]+\Z',
+        max_length=150,
         required=True
     )
     confirmation_code = serializers.CharField(
@@ -50,7 +46,9 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class UserCreatedAdmSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]+\Z',
+        max_length=150,
         validators=[
             UniqueValidator(
                 queryset=User.objects.all()
@@ -59,6 +57,7 @@ class UserCreatedAdmSerializer(serializers.ModelSerializer):
         required=True,
     )
     email = serializers.EmailField(
+        max_length=254,
         validators=[
             UniqueValidator(
                 queryset=User.objects.all()
@@ -66,8 +65,22 @@ class UserCreatedAdmSerializer(serializers.ModelSerializer):
         ],
         required=True,
     )
+    first_name = serializers.CharField(
+        max_length=150,
+        required=False
+    )
+    last_name = serializers.CharField(
+        max_length=150,
+        required=False
+    )
 
     class Meta:
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
         model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
