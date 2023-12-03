@@ -1,14 +1,17 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
 from django.core.validators import RegexValidator
+from django.db import models
 
-from api_yamdb.settings import SYMBOL_LIMIT
+from api_yamdb.settings import (
+    ADMIN,
+    MODERATOR,
+    SYMBOL_LIMIT,
+    USER
+)
 
 
 class User(AbstractUser):
-    USER = 'user'
-    MODERATOR = 'moderator'
-    ADMIN = 'admin'
+
     USER_ROLES = (
         (USER, 'user'),
         (MODERATOR, 'moderator'),
