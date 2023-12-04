@@ -1,4 +1,5 @@
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
@@ -16,13 +17,13 @@ from rest_framework import (
 )
 
 from api_yamdb.settings import YaMDb_email
-from users.models import User
 from users.permissions import AdminPermission
 from users.serializers import (
     SignUpSerializer,
     TokenSerializer,
     UserCreatedAdmSerializer,
 )
+User = get_user_model()
 
 
 class SignUpUserViewSet(
