@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
@@ -5,18 +6,17 @@ from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import (IsAuthenticated,)
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.views import APIView
 from rest_framework import (
     filters,
-    mixins,
     permissions,
     status,
     viewsets,
 )
 
-from api_yamdb.settings import YaMDb_email
 from users.permissions import AdminPermission
 from users.serializers import (
     SignUpSerializer,
@@ -26,26 +26,22 @@ from users.serializers import (
 User = get_user_model()
 
 
-class SignUpUserViewSet(
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet,
-):
+class SignUpUser(APIView):
     '''
-    Вьюсет создает объект класса User и отправляет
+    Класс создает объект класса User и отправляет
     на почту код подтверждения.
     '''
 
-    queryset = User.objects.all()
     serializer_class = SignUpSerializer
     permission_classes = (permissions.AllowAny,)
 
-    def create(self, request):
+    def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
         username = serializer.validated_data['username']
         try:
-            user, create = User.objects.get_or_create(
+            user, _ = User.objects.get_or_create(
                 username=username,
                 email=email
             )
@@ -58,24 +54,20 @@ class SignUpUserViewSet(
         send_mail(
             subject='Successful registration',
             message=f'Токен: {confirmation_code}',
-            from_email=YaMDb_email,
+            from_email=settings.YAMDB_EMAIL,
             recipient_list=(user.email,),
             fail_silently=False
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GetTokenViewSet(
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet
-):
-    '''Вьюсет предоставляет JWT-токен.'''
+class GetToken(APIView):
+    '''Класс предоставляет JWT-токен.'''
 
-    queryset = User.objects.all()
     serializer_class = TokenSerializer
     permission_classes = (permissions.AllowAny,)
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data.get('username')
@@ -87,8 +79,7 @@ class GetTokenViewSet(
                 {'token': str(access_token)},
                 status=status.HTTP_200_OK
             )
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateUserViewSet(viewsets.ModelViewSet):
