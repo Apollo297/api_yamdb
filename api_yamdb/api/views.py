@@ -1,24 +1,16 @@
+from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework.filters import SearchFilter
-from rest_framework.viewsets import ModelViewSet
-
-from api.filters import TitleFilter
 from rest_framework import (
     mixins,
     viewsets
 )
-from reviews.models import (
-    Category,
-    Genre,
-    Review,
-    Title
-)
-from users.permissions import (
-    IsAdminUserOrReadOnly,
-    AuthorOrHasRoleOrReadOnly,
-)
-from users.serializers import (
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.viewsets import ModelViewSet
+
+from api.filters import TitleFilter
+from api.serializers import (
     CategorySerializer,
     GenreSerializer,
     TitleReadSerializer,
@@ -26,9 +18,26 @@ from users.serializers import (
     ReviewSerializer,
     CommentSerializer,
 )
+from api.utils import title_method
+from reviews.models import (
+    Category,
+    Genre,
+    Review,
+    Title
+)
+from users.permissions import (
+    AuthorOrHasRoleOrReadOnly,
+    IsAdminUserOrReadOnly,
+)
+
+
+class SearchFieldsMixin:
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class CategoryViewSet(
+    SearchFieldsMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.DestroyModelMixin,
@@ -38,11 +47,10 @@ class CategoryViewSet(
     serializer_class = CategorySerializer
     permission_classes = (IsAdminUserOrReadOnly,)
     filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class GenreViewSet(
+    SearchFieldsMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.DestroyModelMixin,
@@ -52,12 +60,14 @@ class GenreViewSet(
     serializer_class = GenreSerializer
     permission_classes = (IsAdminUserOrReadOnly,)
     filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class TitleViewSet(ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = (Title.objects.annotate(
+        rating=Avg(
+            'reviews__score'
+        )).all().order_by('-year')
+    )
     permission_classes = (IsAdminUserOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
@@ -76,7 +86,10 @@ class TitleViewSet(ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (AuthorOrHasRoleOrReadOnly,)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        AuthorOrHasRoleOrReadOnly
+    )
     http_method_names = [
         'get',
         'post',
@@ -85,19 +98,21 @@ class ReviewViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        return title.reviews.all()
+        return title_method(self.kwargs).reviews.all()
 
     def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        serializer.save(author=self.request.user, title=title)
+        serializer.save(
+            author=self.request.user,
+            title=title_method(self.kwargs)
+        )
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (AuthorOrHasRoleOrReadOnly,)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        AuthorOrHasRoleOrReadOnly
+    )
     http_method_names = [
         'patch',
         'get',
@@ -106,16 +121,21 @@ class CommentViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-
+        review_id = self.kwargs.get('review_id')
         review = get_object_or_404(
             Review,
-            pk=self.kwargs.get('review_id'),
+            id=review_id,
+            title=title_method(self.kwargs)
         )
         return review.comments.all()
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id)
+        review = get_object_or_404(
+            Review,
+            id=review_id,
+            title=title_method(self.kwargs)
+        )
         serializer.save(
             author=self.request.user,
             review=review

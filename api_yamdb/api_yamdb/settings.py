@@ -4,16 +4,11 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -26,8 +21,8 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'users',
-    'api',
     'reviews',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -61,18 +56,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'api_yamdb.wsgi.application'
 
-
-# Database
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-
-# Password validation
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -89,10 +78,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 
@@ -101,9 +87,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
 
@@ -117,7 +100,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
-YaMDb_email = 'yamdb_api@mail.com'
+YAMDB_EMAIL = 'yamdb_api@mail.com'
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
@@ -138,3 +121,16 @@ REST_FRAMEWORK = {
 USER = 'user'
 MODERATOR = 'moderator'
 ADMIN = 'admin'
+USER_ROLES = (
+    (USER, 'пользователь'),
+    (MODERATOR, 'модератор'),
+    (ADMIN, 'админ'),
+)
+
+MAX_NAME_LENGTH = 256
+
+MAX_BIG_TEXT_FIELD_LENGTH = 50
+
+MAX_LENGTH_EMAIL = 254
+
+MAX_LENGTH_USERNAME = 150

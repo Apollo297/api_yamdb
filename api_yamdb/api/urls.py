@@ -10,57 +10,52 @@ from api.views import (
 )
 from users.views import (
     CreateUserViewSet,
-    GetTokenViewSet,
-    SignUpUserViewSet,
+    GetToken,
+    SignUpUser,
 )
 
 app_name = 'api'
 
-router = DefaultRouter()
+router_v1 = DefaultRouter()
 
-router.register(
+router_v1.register(
     'categories',
     CategoryViewSet,
-    basename='сategories',
+    basename='categories',
 )
-router.register(
+router_v1.register(
     'titles',
     TitleViewSet,
     basename='titles',
 )
-router.register(
+router_v1.register(
     'genres',
     GenreViewSet,
     basename='genres',
 )
-router.register(
-    'auth/signup',
-    SignUpUserViewSet,
-    basename='signup',
-)
-router.register(
-    'auth/token',
-    GetTokenViewSet,
-    basename='gettoken',
-)
-router.register(
+router_v1.register(
     'users',
     CreateUserViewSet,
     basename='users',
 )
-router.register(
+router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
-    basename='review-list'
+    basename='reviews'
 )
 
-router.register(
+router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,
-    basename='comment-list'
+    basename='comments'
 )
 
+registration_patterns = [
+    path('signup/', SignUpUser.as_view(), name='signup'),
+    path('token/', GetToken.as_view(), name='gettoken'),
+]
 
 urlpatterns = [
-    path('v1/', include(router.urls)),
+    path('v1/', include(router_v1.urls)),
+    path('v1/auth/', include(registration_patterns)),
 ]
