@@ -62,7 +62,6 @@ class GenreTitleAdmin(admin.ModelAdmin):
         'genre',
         'title',
     )
-    empty_value_display = 'значение отсутствует'
     list_filter = ('genre',)
 
 
