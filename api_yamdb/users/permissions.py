@@ -10,6 +10,10 @@ class AdminPermission(BasePermission):
 
 
 class IsAdminUserOrReadOnly(BasePermission):
+    '''
+    Разрешает только безопасные методы, наделяет правами Администратора.
+    '''
+
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
@@ -19,6 +23,11 @@ class IsAdminUserOrReadOnly(BasePermission):
 
 
 class AuthorOrHasRoleOrReadOnly(BasePermission):
+    '''
+    Разрешение проверяет имеет ли пользователь статус администратора,
+    а также является ли он автором контента.
+    '''
+
     def has_object_permission(self, request, view, obj):
         return (
             request.method in permissions.SAFE_METHODS
