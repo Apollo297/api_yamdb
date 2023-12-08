@@ -23,6 +23,7 @@ from users.serializers import (
     TokenSerializer,
     UserCreatedAdmSerializer,
 )
+
 User = get_user_model()
 
 

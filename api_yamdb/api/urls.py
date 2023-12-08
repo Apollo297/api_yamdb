@@ -51,11 +51,15 @@ router_v1.register(
 )
 
 registration_patterns = [
-    path('signup/', SignUpUser.as_view(), name='signup'),
-    path('token/', GetToken.as_view(), name='gettoken'),
+    path('auth/signup/', SignUpUser.as_view(), name='signup'),
+    path('auth/token/', GetToken.as_view(), name='gettoken'),
+]
+
+include_patterns = [
+    path('', include(router_v1.urls)),
+    path('', include(registration_patterns)),
 ]
 
 urlpatterns = [
-    path('v1/', include(router_v1.urls)),
-    path('v1/auth/', include(registration_patterns)),
+    path('v1/', include(include_patterns))
 ]

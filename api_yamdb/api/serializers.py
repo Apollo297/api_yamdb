@@ -55,9 +55,9 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate_year(self, year):
-        if 0 > year or year > datetime.now().year:
+        if year > datetime.now().year:
             raise serializers.ValidationError(
-                'Год не может быть 0 или быть больше текущей даты'
+                'Год не может быть больше текущей даты'
             )
         return year
 
@@ -92,12 +92,17 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, obj):
         title_id = self.context['view'].kwargs.get('title_id')
         author = self.context.get('request').user
-        title = get_object_or_404(Title, id=title_id)
+        title = get_object_or_404(
+            Title,
+            id=title_id
+        )
         if (
-            self.context.get("request").method != "PATCH"
+            self.context.get('request').method != 'PATCH'
             and title.reviews.filter(author=author).exists()
         ):
-            raise serializers.ValidationError('Ваш отзыв уже есть.')
+            raise serializers.ValidationError(
+                'Ваш отзыв уже есть.'
+            )
         return obj
 
 
