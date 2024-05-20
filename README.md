@@ -2,7 +2,7 @@
 api_yamdb - Групповой проект
 
 
-В учебном проекте api_yamdb развиваются навыки работы в команде и использования GitHub для совместной работы над проектом. На практических заданиях изучаются и используются на практике:
+В проекте api_yamdb развиваются навыки работы в команде и использования GitHub для совместной работы над проектом. Используются на практике:
 
 - API интерфейс
 - Серилизация при обмене и преодбразовании данных
@@ -20,6 +20,7 @@ api_yamdb - Групповой проект
 ![image](https://img.shields.io/badge/django%20rest-ff1709?style=for-the-badge&logo=django&logoColor=white)
 ![image](https://img.shields.io/badge/VSCode-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
 ![image](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
 
 
 ### Как запустить проект:
